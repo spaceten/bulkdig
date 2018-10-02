@@ -1,0 +1,20 @@
+#!/bin/bash
+REDBG="\e[41m"
+NC="\033[0m"
+BOLD="\e[1m"
+
+dt ()
+{
+    remove=$(echo $@ |  sed 's^https*^^' | sed 's^[,/*:]^^g' );
+    dig +trace +nocl +nodnssec $remove | sed "s/\($remove.*A\s*\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)\)/dig -x \2 +short | xargs echo \"\1 ->\"/e"
+}
+
+while read domain
+do
+
+        all=$(dt $domain| sed -nE "/^$domain.+\b(A|NS)\b/p" | awk '{if (NF <= 4) print $NF; else if (NF = 6) print $(NF-2), "->", $(NF)}' | sort -u)
+        printf "
+${BOLD}${REDBG}$domain${NC} ${NC}
+$all
+"
+done
