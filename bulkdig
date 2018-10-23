@@ -21,9 +21,16 @@ do
 
 if [ ! $1 ] || [ $1 = "a" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
-printf "$a\n"
-printf "$ns\n
+        if [ ! -z "$a" ]; then
+                printf "$a\n"
+		fi
+        if [ ! -z "$cname" ]; then
+                printf "$cname\n"	
+		fi
+        if [ ! -z "$ns" ]; then
+                printf "$ns\n
 "
+		fi
 
 
 elif [ $1 = "mx" ]; then
@@ -38,21 +45,34 @@ printf "$txt\n"
 
 elif [ $1 = "cname" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
-printf "$cname\n
+        if [ ! -z "$a" ]; then
+                printf "$a\n
 "
+		fi
+        if [ ! -z "$cname" ]; then
+                printf "$cname\n
+"	
+		fi
 
 elif [ $1 = "any" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
-printf "$a\n"
+        if [ ! -z "$a" ]; then
+                printf "$a\n"
+		fi
+        if [ ! -z "$cname" ]; then
+                printf "$cname\n
+"	
+		fi
         if [ ! -z "$mx" ]; then
                 printf "$mx\n"
         fi
         if [ ! -z "$txt" ]; then
                 printf "$txt\n"
         fi
-printf "$ns\n
+        if [ ! -z "$ns" ]; then
+                printf "$ns\n
 "
-
+		fi
 else
         echo "Error, I accept only the following arguments: a, mx, txt, cname, any."
         break
@@ -60,4 +80,3 @@ fi
 done
 alias rm="rm"
 rm temp_resolver
-
