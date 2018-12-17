@@ -27,9 +27,11 @@ dt_any ()
 records ()
 {
   a=$(cat temp_resolver | sed -nE "/^$domain.+\b(A|CNAME)\b/p" | awk '{if (NF <= 4) print $NF; else if (NF = 6) print $(NF-3), $(NF-2), "->", $(NF)}' | sort -u)
-  mx=$(cat temp_resolver | sed -nE "/^$domain.+\b(MX)\b/p" | awk '{if (NF <= 4) print $NF; else if (NF = 6) print $(NF-3), $(NF-2), $(NF-1)}' | sort -u)
+  mx=$(cat temp_resolver | sed -nE "/^$domain.+\b(MX)\b/p" | awk '{if (NF <= 4) print $NF; else if (NF = 6) print $(NF-3), $(NF-2), $(NF-1)}' | sort -n)
   ns=$(cat temp_resolver | sed -nE "/^$domain.+\b(NS)\b/p" | awk '{if (NF <= 4) print $(NF-1), $(NF); else if (NF = 6) print $(NF-3), $(NF-2), $(NF-1)}' | sort -u)
   txt=$(cat temp_resolver | sed -nE "/^$domain.+\b(TXT)\b/p" | cut -d \" -f 2 | sort -u)
+  printf "$txt" > temp_txt
+  txt=$(sed "s/^/TXT /" temp_txt)
   cname=$(cat temp_resolver | sed -nE "/^$domain.+\b(CNAME)\b/p" | awk '{if (NF <= 4) print $NF; else if (NF = 6) print $(NF-3), $(NF-2), $(NF-1)}' | sort -u)
 }
 
@@ -38,7 +40,7 @@ fetch ()
 {
 if [[ $attr = "any" ]]; then
   dt_any $domain > temp_resolver
-  if grep "ns\.cloudflare\.com" temp_resolver -q; then
+  if grep "cloudflare\.com" temp_resolver -q; then
    dt $domain > temp_resolver && dt $domain mx >> temp_resolver && dt $domain txt >> temp_resolver
   fi
 else
@@ -59,58 +61,59 @@ records
 if [ ! $1 ] || [ $1 = "a" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
         if [ ! -z "$a" ]; then
-                printf "$a\n"
+                printf "$a\n" | grep --color -E "A|$"
                 fi
         if [ ! -z "$cname" ]; then
-                printf "$cname\n"
+                printf "$cname\n" | grep --color -E "CNAME|$"
                 fi
         if [ ! -z "$ns" ]; then
-                printf "$ns\n
-"
+                printf "$ns\n" | grep --color -E "NS|$"
+                echo ""
                 fi
 
 
 elif [ $1 = "mx" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
-printf "$mx\n
-"
+printf "$mx\n" | grep --color -E "MX|$"
+echo ""
 
 elif [ $1 = "txt" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
-printf "$txt\n"
-
+printf "$txt\n" | grep --color -E "TXT|$"
+echo ""
 
 elif [ $1 = "cname" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
         if [ ! -z "$a" ]; then
-                printf "$a\n
-"
+                printf "$a\n" | grep --color -E "A|$"
+echo ""
                 fi
         if [ ! -z "$cname" ]; then
-                printf "$cname\n
-"
+                printf "$cname\n" | grep --color -E "CNAME|$"
+echo ""
                 fi
 
 elif [ $1 = "any" ]; then
 printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
         if [ ! -z "$a" ]; then
-                printf "$a\n"
+                printf "$a\n" | grep --color -E "A|$"
                 fi
         if [ ! -z "$cname" ]; then
-                printf "$cname\n
-"
+                printf "$cname\n" | grep --color -E "CNAME|$"
                 fi
         if [ ! -z "$mx" ]; then
-                printf "$mx\n"
+                printf "$mx\n" | grep --color -E "MX|$"
         fi
         if [ ! -z "$txt" ]; then
-                printf "$txt\n"
+                printf "$txt\n" | grep --color -E "TXT|$"
         fi
         if [ ! -z "$ns" ]; then
-                printf "$ns\n
-"
+                printf "$ns\n" | grep --color -E "NS|$"
+                echo ""
+
                 fi
 fi
 done
 alias rm="rm"
 rm temp_resolver
+rm temp_txt
