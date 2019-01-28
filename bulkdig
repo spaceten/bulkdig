@@ -68,8 +68,8 @@ printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
                 fi
         if [ ! -z "$ns" ]; then
                 printf "$ns\n" | grep --color -E "NS|$"
-                echo ""
                 fi
+echo ""
 
 
 elif [ $1 = "mx" ]; then
@@ -115,5 +115,4 @@ printf "${BOLD}${REDBG}$domain${NC} ${NC}\n"
 fi
 done
 alias rm="rm"
-rm temp_resolver
-rm temp_txt
+rm temp_resolver temp_txt
